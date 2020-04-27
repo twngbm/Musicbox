@@ -27,6 +27,17 @@ $ docker build -t musicbox . --no-cache
 ```
 $ docker run --name=Musicbox -p=8080:80 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach musicbox
 ```
+3. Setup iptables for limit access(Highly Recommends, sinec this project haven't provide web user authority yet.)
+```
+$ sudo iptables -I DOCKER-USER -i enp0 -m conntrack --ctorigdstport 8080 --ctdir ORIGINAL -j DROP
+$ sudo iptables -I DOCKER-USER -i enp0 -s 192.168.0.1/24 -m conntrack --ctorigdstport 8080 --ctdir ORIGINAL -j ACCEPT
+```
+* Change enp0 to your outer network interface's name.
+* Change 192.168.0.1/24 to your subnet for your need.
+* Change 8080 to your outer port.
+
+
+
 
 * You can use whatever **container name** you wish.
 * You can use any **port number** which not use on the host you like.
