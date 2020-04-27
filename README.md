@@ -27,6 +27,11 @@ $ docker build -t musicbox . --no-cache
 ```
 $ docker run --name=Musicbox -p=8080:80 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach musicbox
 ```
+* You can use whatever **container name** you wish.
+* You can use any **port number** which not use on the host you like.
+* You must place your **Google Api Key** inside env or this system is not going to work.
+
+
 3. Setup iptables for limit access(Highly Recommends, sinec this project haven't provide web user authority yet.)
 ```
 $ sudo iptables -I DOCKER-USER -i enp0 -m conntrack --ctorigdstport 8080 --ctdir ORIGINAL -j DROP
@@ -39,9 +44,7 @@ $ sudo iptables -I DOCKER-USER -i enp0 -s 192.168.0.1/24 -m conntrack --ctorigds
 
 
 
-* You can use whatever **container name** you wish.
-* You can use any **port number** which not use on the host you like.
-* You must place your **Google Api Key** inside env or this system is not going to work.
+
 # Known Issue
 
 1. There is no authority management yet, using host iptables to achive it now.
