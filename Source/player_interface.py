@@ -14,13 +14,14 @@ playlist_pipe=os.open("/Youtube_Player/playlist.pipe",os.O_RDONLY | os.O_NONBLOC
 
 poll=select.poll()
 poll.register(playlist_pipe,select.POLLIN)
+APIKEY=os.environ['APIKEY']
 idx=-1
 add=0
 repeat=0
 status="Stop"
 now_playing=None
 playList=[]
-md=MediaStreamer()
+md=MediaStreamer(APIKEY)
 MusicInfoDict={}
 
 def returnState(MusicInfoDict,playList,idx,status,repeat):
@@ -133,7 +134,7 @@ while True:
             status="Stop"
             now_playing=None
             playList=[]
-            md=MediaStreamer()
+            md=MediaStreamer(APIKEY)
         elif action=="rtstate":
             returnState(MusicInfoDict,playList,idx,status,repeat)
     #print(playList,idx,status)

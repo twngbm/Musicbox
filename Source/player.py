@@ -1,6 +1,5 @@
 import pafy
 import vlc
-pafy.set_api_key("AIzaSyB2VjBi3FxForYVZyWQGsO30bCRS_ue_is")
 def IsValidYoutube(url):
         try:
             pafy.new(url)
@@ -8,11 +7,12 @@ def IsValidYoutube(url):
         except:
             return False
 class MediaStreamer():
-    def __init__(self):
+    def __init__(self,APIKEY):
         self.mrl=None
         self.video=None
         self.Player=vlc.MediaPlayer()
         self.IsPause=False
+        pafy.set_api_key(APIKEY)
     def SetURL(self,url):
         try:
             self.video=pafy.new(url)
