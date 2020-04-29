@@ -36,14 +36,11 @@
             var objurl=document.getElementById("url");
             var url=objurl.value;
             objurl.value='';
-            //var objaction=document.getElementById("action");
-            //var action=objaction.value;
             var action=button.value;
-
             var data =
                 {
-                    "URL": url,
-                    "ACTION": action
+                    "url": url,
+                    "action": action
                 };
             var dataToSend = JSON.stringify(data);
             $.ajax(
@@ -51,12 +48,6 @@
                             url: '/',
                             type: 'POST',
                             data: dataToSend,
-                            success: function () {
-                                $("#responsefield").text(String(action)+" Successed");
-                            },
-                            error: function (){
-                                $("#responsefield").text(String(action)+" Faild. Call 911.");
-                            }
                         });
                 event.preventDefault();
             await sleep(1000);
@@ -71,33 +62,13 @@
                         type: 'GET',
                         success: function (jsonResponse) {
                             console.log(jsonResponse);
-                            /*
-                            {
-                                "MusicInfoDict": 
-                                {"https://www.youtube.com/watch?v=IJnPC1HAQ5Q": 
-                                    {"Title": "【MAD】milet -《Prover》fate/grand order - 絕對魔獸戰線巴比倫尼亞 ED2【中日字幕】", 
-                                     "Author": "白無月", 
-                                     "Length": 244, 
-                                     "Image": "http://i.ytimg.com/vi/IJnPC1HAQ5Q/hqdefault.jpg"}}, 
-                                "Playlist": ["https://www.youtube.com/watch?v=IJnPC1HAQ5Q"], 
-                                "Status": ["Stop", 0], 
-                                "NowPlaying": 0
-                            }
-                            */
-
                             playlist=jsonResponse["Playlist"];
-                       
-                            //var playlist=jsonResponse["Playlist"];
-                            
-
-
                             var size=Object.keys(playlist).length;
                             
                             if (size==0){
                                 var state="Stop";
                                 var table=document.getElementById("musiclist");
                                 var rowcount=table.rows.length;
-                                console.log(rowcount);
                                 while (rowcount!=0){
                                     rowcount--;
                                     table.deleteRow(0);
@@ -125,14 +96,12 @@
                                 var rowcount=table.rows.length;
                                 for (var i=0,rowcount;row=table.rows[i];i++){
                                     var imgcol=row.insertCell(0);
-                                    var txtcol=row.insertCell(1);
                                     var imageURL=info[playlist[i]]["Image"];
                                     var title=info[playlist[i]]["Title"];
+                                    var title=String(title).replace(/"/g,'\'');
                                     var lengths=info[playlist[i]]["Length"];
-                                    var length=Math.floor(lengths/60)+'"'+lengths%60;
-                                    imgcol.innerHTML='<img src="'+imageURL+'"></img>';
-                                    txtcol.innerHTML='<h5>'+title+'</h>'+'<p>Length: '+length+'</p>';
-                                }
+                                    var length=Math.floor(lengths/60)+':'+lengths%60;
+                                    imgcol.innerHTML='<img src="'+imageURL+'" title="'+title+'['+length+']"></img>';                                }
                                 
                             }
                             
@@ -239,11 +208,9 @@
     <div class="container">
         <div class="row">
             <div class="col-4 well">
-                <div class="container" id="musiclistcont">
                     <table id="musiclist"></table>
-                </div>
             </div>
-            <div class="col">
+            <div class="col-8">
                 <img id="nowplayimage" class="img-fluid"></img>
                 <h3 style="font-weight: bolder;">State: <span id="nowplaystate" ></span><span id="nowplayrepeat"></span></h3>
                 <h3 style="font-weight: bolder;">Now Playing:</h3>

@@ -13,39 +13,40 @@ from tornado.options import define, options
 from multiprocessing.connection import Listener
 
 
-
 class StatusHandler(tornado.web.RequestHandler):
+
     def get(self):
-        rtmsg=""
-        command={"url":"","action":"rtstate"}
-        playlist_pipe=os.open("/Youtube_Player/playlist.pipe",os.O_WRONLY)
-        msg=message.create_msg(command)
-        os.write(playlist_pipe,msg)
-        reader=Listener(('localhost',6000))
-        conn=reader.accept()
-        rtmsg=conn.recv()
-        #status_pipe=os.open("/Youtube_Player/status.pipe",os.O_RDONLY | os.O_NONBLOCK )    
-        #poll=select.poll()
-        #poll.register(status_pipe,select.POLLIN)
-        #if (status_pipe,select.POLLIN) in poll.poll(4000):
-        #    rtmsg=message.get_message(status_pipe)
-        #rtmsg=rtmsg.replace("'",'"')
-        #print(json.dumps(rtmsg))
+        current_path=os.path.dirname(os.path.abspath(__file__))
+        msg=message.create_msg(str({"url":"","action":"rtstate"}).encode("utf-8"))
+        try:
+            command_pipe=os.open(current_path+"/command.pipe",os.O_WRONLY|os.O_NONBLOCK)
+            os.write(command_pipe,msg)
+            reader=Listener(('localhost',6000))
+            conn=reader.accept()
+            rtmsg=conn.recv()
+            reader.close()
+        except:
+            print("Player_Interface isn't running.")
+            rtmsg={"MusicInfoDict": {}, "Playlist": [], "Status": ["Stop", 0], "NowPlaying": -1}
         self.write(rtmsg)
 
 class MainHandler(tornado.web.RequestHandler):
-    
     def get(self):
         self.render("index.html", title="Rteslab Music Player")
     def post(self):
-        json_obj=json_decode(self.request.body)
-        url=json_obj['URL']
-        action=json_obj['ACTION']
-        command={"url":url,"action":action}
-        playlist_pipe=os.open("/Youtube_Player/playlist.pipe",os.O_WRONLY)
+        current_path=os.path.dirname(os.path.abspath(__file__))
+        if len(self.request.body)<200:
+            msg=message.create_msg(self.request.body)
+            try:
+                command_pipe=os.open(current_path+"/command.pipe",os.O_WRONLY|os.O_NONBLOCK)
+                os.write(command_pipe,msg)
+            except:
+                print("Player_Interface isn't running.")
+        else:
+            print("Wrong message format:Too Long")
+
         
-        msg=message.create_msg(command)
-        os.write(playlist_pipe,msg)
+
 define("port", default=80, help="run on the given port", type=int)
 class Application(tornado.web.Application):
     def __init__(self):

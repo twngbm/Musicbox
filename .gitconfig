@@ -1,0 +1,6 @@
+[user]
+	name = twngbm
+	email = twngbm@gmail.com
+
+[credential]
+	helper = "!f() { /root/.vscode-server/bin/ff915844119ce9485abfe8aa9076ec76b5300ddd/node /tmp/vscode-remote-containers-4df3e3f7cc806fb49a010fd2d5fd40a1f63dc63d.js $*; }; f"
