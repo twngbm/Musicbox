@@ -25,11 +25,11 @@ $ docker build -t musicbox . --no-cache
 
 2. Run This Image at background
 ```
-$ docker run --name=Musicbox -p=8080:80 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach musicbox
+$ docker run --name=Musicbox -p=9250:5000 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach --restart=alwayss musicbox
 ```
 * You can use whatever **container name** you wish.
 * You can use any **port number** which not use on the host you like.
-* You must place your **Google Api Key** inside env or this system is not going to work.
+* You **must** place your **Google Api Key** inside env or this system is not going to work.
 
 
 3. Setup iptables for limit access(Highly Recommends, sinec this project haven't provide web user authority yet.)
@@ -49,4 +49,4 @@ $ sudo iptables -I DOCKER-USER -i enp0 -s 192.168.0.1/24 -m conntrack --ctorigds
 
 1. There is no authority management yet, using host iptables to achive it now.
 2. Sometime it may fail at Append or Insert , please try it again
-3. Sometime Append and Insert will take more than 5 seconds, sinec the system is waiting for advertisement on youtube.
+3. Sometime the SSE event will not send, please try to refresh the page or press button.

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
+<head>
     <meta charset="utf-8">
     <title>RTESLAB Music Player</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,137 +14,16 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <link rel="shortcut icon" href="assets/ico/favicon.ico">
-
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
     <link href="/static/assets/css/bootstrap.min.css" rel="stylesheet">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="/static/assets/js/bootstrap.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
-    <script>
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-        $(document).ready(update());
-        var i=setInterval("update()",10000);
-        async function ButtonClick(button){
-            var objurl=document.getElementById("url");
-            var url=objurl.value;
-            objurl.value='';
-            var action=button.value;
-            var data =
-                {
-                    "url": url,
-                    "action": action
-                };
-            var dataToSend = JSON.stringify(data);
-            $.ajax(
-                        {
-                            url: '/',
-                            type: 'POST',
-                            data: dataToSend,
-                        });
-                event.preventDefault();
-            await sleep(1000);
-            update();
-        };
-
-        async function update(){
-            window.a++;
-            $.ajax(
-                    {
-                        url: '/retstate',
-                        type: 'GET',
-                        success: function (jsonResponse) {
-                            console.log(jsonResponse);
-                            playlist=jsonResponse["Playlist"];
-                            var size=Object.keys(playlist).length;
-                            
-                            if (size==0){
-                                var state="Stop";
-                                var table=document.getElementById("musiclist");
-                                var rowcount=table.rows.length;
-                                while (rowcount!=0){
-                                    rowcount--;
-                                    table.deleteRow(0);
-                                }
-                            }
-                            else{
-                                var nowplay=jsonResponse["NowPlaying"];
-                                var info=jsonResponse["MusicInfoDict"];
-                                var state=jsonResponse["Status"][0];
-                                var repeat=jsonResponse["Status"][1];
-                                var nowplayURL=playlist[nowplay];
-                                var table=document.getElementById("musiclist");
-                                var rowcount=table.rows.length;
-                                
-                                while (rowcount!=0){
-                                    rowcount--;
-                                    table.deleteRow(0);
-                                }
-                                while(size!=0){
-                                    size--;
-                                    table.insertRow();
-                                }
-                                
-
-                                var rowcount=table.rows.length;
-                                for (var i=0,rowcount;row=table.rows[i];i++){
-                                    var imgcol=row.insertCell(0);
-                                    var imageURL=info[playlist[i]]["Image"];
-                                    var title=info[playlist[i]]["Title"];
-                                    var title=String(title).replace(/"/g,'\'');
-                                    var lengths=info[playlist[i]]["Length"];
-                                    var length=Math.floor(lengths/60)+':'+lengths%60;
-                                    imgcol.innerHTML='<img src="'+imageURL+'" title="'+title+'['+length+']"></img>';                                }
-                                
-                            }
-                            
-                            $("#nowplaystate").text(state);
-                            if (state=="Playing"){
-                                
-                                if(repeat==1){
-                                    $("#nowplayrepeat").text("  Repeat On");
-                                }
-                                else{
-                                    $("#nowplayrepeat").text("  Repeat Off");
-                                }
-
-                                var nowplayImage=info[nowplayURL]["Image"]
-                                var nowplayTitle=info[nowplayURL]["Title"];
-                                var nowplayAuthor=info[nowplayURL]["Author"];
-                                var nowplayLength=info[nowplayURL]["Length"];
-                                var min=Math.floor(nowplayLength/60);
-                                var sec=nowplayLength%60;
-                                
-                                document.getElementById("nowplayimage").src=nowplayImage;
-                                $("#nowplaytitle").text(nowplayTitle);
-                                $("#nowplayauthor").text(nowplayAuthor);
-                                $("#nowplaylength").text(min+" Minutes "+sec+" Seconds");
-
-                            }
-                            else if (state=="Stop"){
-                                document.getElementById("nowplayimage").src="/static/assets/img/waiting.gif";
-                                $("#nowplayrepeat").text("");
-                                $("#nowplaytitle").text("");
-                                $("#nowplayauthor").text("");
-                                $("#nowplaylength").text("")
-                            }
-                            
-                        }
-                    });
-            }
-        
-    </script>
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
         html {
             font: normal 13px "HelveticaNeue-Light", Helvetica, Georgia, sans-serif;
+            height: 100%;
         }
 
         body {
@@ -152,67 +31,234 @@
             font-family: DFKai-sb;
             background: url(static/assets/img/graphy.png);
             background-repeat: repeat;
+            height: 100%;
         }
-                
     </style>
-
 </head>
 
+<script>
+    $(document).ready(init())
+    function init() {
+        var data =
+        {
+            "url": '',
+            "Action": 'getState'
+        };
+        var dataToSend = JSON.stringify(data);
+        $.ajax(
+            {
+                url: '/action',
+                type: 'POST',
+                data: dataToSend,
+            });
+    }
+    var source = new EventSource("{{ url_for('send') }}");
+    source.onmessage = function (event) {
+        var jsondata = event.data.replaceAll("'", '"');
+        console.log(jsondata);
+        var data = JSON.parse(jsondata);
+        var playlist = data["playlist"];
+        var playlistSize = playlist.length;
+        console.log(playlistSize);
+        var status = data["status"];
+        var index = data["index"];
+        var repeat = data["repeat"];
+        var autoplay = data["autoplay"];
+        var volume = data["volume"];
+
+        if (repeat == 1) {
+            document.getElementById("RepeatBtn").src = "/static/assets/img/repeat-one.png";
+            if (document.getElementById("Repeat").classList.contains("btn-outline-success")) {
+                document.getElementById("Repeat").classList.add("btn-success");
+                document.getElementById("Repeat").classList.remove("btn-outline-success");
+            }
+        }
+        else if (repeat == 2) {
+            document.getElementById("RepeatBtn").src = "/static/assets/img/repeat.png";
+            if (document.getElementById("Repeat").classList.contains("btn-outline-success")) {
+                document.getElementById("Repeat").classList.add("btn-success");
+                document.getElementById("Repeat").classList.remove("btn-outline-success");
+            }
+        }
+        else {
+            if (document.getElementById("Repeat").classList.contains("btn-success")) {
+                document.getElementById("Repeat").classList.remove("btn-success");
+                document.getElementById("Repeat").classList.add("btn-outline-success");
+            }
+            document.getElementById("RepeatBtn").src = "/static/assets/img/repeat.png";
+        }
+        if (autoplay == true) {
+            document.getElementById("AutoplayBtn").src = "/static/assets/img/infinite-mathematical-symbol.png";
+            if (document.getElementById("Autoplay").classList.contains("btn-outline-success")) {
+                document.getElementById("Autoplay").classList.add("btn-success");
+                document.getElementById("Autoplay").classList.remove("btn-outline-success");
+            }
+        }
+        else {
+            if (document.getElementById("Autoplay").classList.contains("btn-success")) {
+                document.getElementById("Autoplay").classList.remove("btn-success");
+                document.getElementById("Autoplay").classList.add("btn-outline-success");
+            }
+            document.getElementById("AutoplayBtn").src = "/static/assets/img/infinite-mathematical-symbol.png";
+        }
+        if (status == 0) {
+            document.getElementById("Play").value = "Play";
+            document.getElementById("PlayBtn").src = "/static/assets/img/play-button.png";
+            var state = "Stop";
+        }
+        else if (status == 1) {
+            document.getElementById("Play").value = "Pause";
+            document.getElementById("PlayBtn").src = "/static/assets/img/pause.png";
+            var state = "Playing";
+        }
+        else if (status == -1) {
+            document.getElementById("Play").value = "Resume";
+            document.getElementById("PlayBtn").src = "/static/assets/img/play-button.png";
+            var state = "Pause";
+        }
+
+        if (playlistSize == 0) {
+            var state = "Stop";
+            var table = document.getElementById("musiclist");
+            var rowcount = table.rows.length;
+            while (rowcount != 0) {
+                rowcount--;
+                table.deleteRow(0);
+            }
+        }
+        else {
+            var table = document.getElementById("musiclist");
+            var rowcount = table.rows.length;
+            while (rowcount != 0) {
+                rowcount--;
+                table.deleteRow(0);
+            }
+            while (playlistSize != 0) {
+                playlistSize--;
+                table.insertRow();
+            }
+            var rowcount = table.rows.length;
+            var playlistSize = rowcount;
+            for (var i = 0, rowcount; row = table.rows[i]; i++) {
+                var imgcol = row.insertCell(0);
+                var imageURL = playlist[i]["thumb"];
+                var title = playlist[i]["title"];
+                var length = playlist[i]["duration"];
+                imgcol.innerHTML = '<img src="' + imageURL + '" title="' + title + '[' + length + ']"></img>';
+            }
+        }
+        $("#nowplaystate").text(state);
+        if (state == "Playing") {
+            var nowplay = playlist[index];
+            var nowplayImage = nowplay["thumb"]
+            var nowplayTitle = nowplay["title"];
+            var nowplayAuthor = nowplay["author"];
+            var nowplayLength = nowplay["length"];
+            var min = Math.floor(nowplayLength / 60);
+            var sec = nowplayLength % 60;
+
+            document.getElementById("nowplayimage").src = nowplayImage;
+            $("#nowplaytitle").text(nowplayTitle);
+            $("#nowplayauthor").text(nowplayAuthor);
+            $("#nowplaylength").text(min + " Minutes " + sec + " Seconds");
+
+        }
+        else if (state == "Stop") {
+            document.getElementById("nowplayimage").src = "/static/assets/img/waiting.gif";
+            $("#nowplayrepeat").text("");
+            $("#nowplaytitle").text("");
+            $("#nowplayauthor").text("");
+            $("#nowplaylength").text("")
+        }
+    }
+    async function ButtonClick(button) {
+        var objurl = document.getElementById("url");
+        var url = objurl.value;
+        objurl.value = '';
+        var action = button.value;
+        var data =
+        {
+            "url": url,
+            "Action": action
+        };
+        var dataToSend = JSON.stringify(data);
+        $.ajax(
+            {
+                url: '/action',
+                type: 'POST',
+                data: dataToSend,
+            });
+        event.preventDefault();
+    };
+</script>
 
 <body id="bootstrap-js">
-    
     <div class="container well">
         <div class="row">
             <div class="col-8">
-                <input id="url" type="text" class="form-control input-lg" placeholder="Enter Youtube URL Here" style="height:32px">
+                <input id="url" type="text" class="form-control input-lg" placeholder="Enter Youtube URL Here"
+                    style="height:32px">
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Append" onclick="ButtonClick(this)">Append</button>
+                <button id=" action" class="btn btn-primary btn-block" value="Append"
+                    onclick="ButtonClick(this)">Append</button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Insert" onclick="ButtonClick(this)">Insert</button>
+                <button id="action" class="btn btn-primary btn-block" value="Insert"
+                    onclick="ButtonClick(this)">Insert</button>
             </div>
         </div>
-            
+
         <div class="row">
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Play" onclick="ButtonClick(this)">Play</button>
+                <button id="Pre" class="btn btn-outline-dark btn-block" value="Pre" onclick="ButtonClick(this)"><img
+                        src="/static/assets/img/rewind-button.png"></button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Pause" onclick="ButtonClick(this)">Pause</button>
+                <button id="Play" class="btn btn-outline-dark btn-block" value="Play" onclick="ButtonClick(this)"><img
+                        id="PlayBtn" src="/static/assets/img/play-button.png"></button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Resume" onclick="ButtonClick(this)">Resume</button>
+                <button id="Stop" class="btn btn-outline-dark btn-block" value="Stop" onclick="ButtonClick(this)"><img
+                        src="/static/assets/img/stop-button.png"></button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Stop" onclick="ButtonClick(this)">Stop</button>
+                <button id="Next" class="btn btn-outline-dark btn-block" value="Next" onclick="ButtonClick(this)"><img
+                        src="/static/assets/img/forward-button.png"></button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Next" onclick="ButtonClick(this)">Next</button>
-            </div>
-            <div class="col">    
-                <button id="action" class="btn btn-primary btn-block" value="Pre" onclick="ButtonClick(this)">Pre</button>
+                <button id="Repeat" class="btn btn-outline-success btn-block" value="Repeat"
+                    onclick="ButtonClick(this)"><img id="RepeatBtn" src="/static/assets/img/repeat.png"></button>
             </div>
             <div class="col">
-                <button id="action" class="btn btn-primary btn-block" value="Repeat" onclick="ButtonClick(this)">Repeat</button>
+                <button id="Autoplay" class="btn btn-outline-success btn-block" value="Autoplay"
+                    onclick="ButtonClick(this)"><img id="AutoplayBtn"
+                        src="/static/assets/img/infinite-mathematical-symbol.png"></button>
             </div>
-            <div class="col">    
-                <button id="action" class="btn btn-primary btn-block" value="Clean" onclick="ButtonClick(this)">Claen</button>
+            <div class="col">
+                <button id="Claen" class="btn btn-danger btn-block" value="Clean" onclick="ButtonClick(this)"><img
+                        src="/static/assets/img/power-button.png"></button>
+            </div>
+            <div class="col">
+                <button id="DecreaseVolume" class="btn btn-outline-dark btn-block" value="DecreaseVolume"
+                    onclick="ButtonClick(this)"><img src="/static/assets/img/volume-down.png"></button>
+            </div>
+            <div class="col">
+                <button id="IncreaseVolume" class="btn btn-outline-dark btn-block" value="IncreaseVolume"
+                    onclick="ButtonClick(this)"><img src="/static/assets/img/volume-up.png"></button>
             </div>
         </div>
-                
 
-
-        
     </div>
-    <div class="container">
+    <div class="container" style="max-height:100%;">
         <div class="row">
-            <div class="col-4 well">
-                    <table id="musiclist"></table>
+            <div class="col-3 well" style="max-height:700px;overflow:auto;">
+                <table id="musiclist"></table>
             </div>
-            <div class="col-8">
+            <div class="col-9">
                 <img id="nowplayimage" class="img-fluid"></img>
-                <h3 style="font-weight: bolder;">State: <span id="nowplaystate" ></span><span id="nowplayrepeat"></span></h3>
+                <h3 style="font-weight: bolder;">State: <span id="nowplaystate"></span><span id="nowplayrepeat"></span>
+                </h3>
                 <h3 style="font-weight: bolder;">Now Playing:</h3>
                 <h2 id="nowplaytitle" style="font-weight: bolder;"></h2>
                 <h3 style="font-weight: bolder;">Author:</h3>
@@ -221,7 +267,6 @@
                 <h2 id="nowplaylength" style="font-weight: bolder;"></h2>
             </div>
         </div>
-        
+
     </div>
 </body>
-</html>
