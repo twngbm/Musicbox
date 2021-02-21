@@ -25,7 +25,7 @@ $ docker build -t musicbox . --no-cache
 
 2. Run This Image at background
 ```
-$ docker run --name=Musicbox -p=9250:5000 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach --restart=alwayss musicbox
+$ docker run --name=Musicbox -p=9250:5000 --env="APIKEY=<Google Api Key>" --device=/dev/snd --detach --restart=always musicbox
 ```
 * You can use whatever **container name** you wish.
 * You can use any **port number** which not use on the host you like.
