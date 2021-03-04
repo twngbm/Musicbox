@@ -66,7 +66,10 @@ class Player():
             for idx, url in enumerate(c):
                 for _ in range(len_c-idx):
                     new_c.append(url)
-            return random.choice(new_c)
+            newpick = random.choice(new_c)
+            if len(new_c) == 1 or "html" in newpick:
+                continue
+            return newpick
         return videoID
 
     def Check(self):
